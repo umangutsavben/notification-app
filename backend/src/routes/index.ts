@@ -1,4 +1,7 @@
 import { Router, Request, Response } from 'express';
+import authRoutes from '../modules/auth/auth.routes';
+import deviceRoutes from '../modules/devices/device.routes';
+import notificationRoutes from '../modules/notifications/notification.routes';
 
 const router = Router();
 
@@ -12,12 +15,9 @@ router.get('/health', (req: Request, res: Response) => {
   });
 });
 
-import authRoutes from '../modules/auth/auth.routes';
-
-// TODO: Mount other route modules here
 router.use('/auth', authRoutes);
-// router.use('/users', userRoutes);
-// router.use('/notifications', notificationRoutes);
+router.use('/devices', deviceRoutes);
+router.use('/notifications', notificationRoutes);
 // router.use('/admin', adminRoutes);
 
 export default router;

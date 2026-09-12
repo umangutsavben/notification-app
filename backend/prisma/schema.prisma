@@ -39,8 +39,10 @@ model Device {
   id         String   @id @default(uuid())
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId   String
   fcmToken   String?  @unique
   apnsToken  String?  @unique
+  pushToken  String?
   platform   Platform
   deviceModel String?
   osVersion  String?
@@ -49,6 +51,9 @@ model Device {
   lastActive DateTime @default(now())
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@unique([userId, deviceId])
+  @@index([userId, isActive])
 }
 
 enum Platform {
@@ -100,6 +105,8 @@ model UserNotification {
   createdAt      DateTime @default(now())
 
   @@unique([userId, notificationId])
+  @@index([userId, createdAt])
+  @@index([userId, isRead])
 }
 
 model NotificationDelivery {

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../../core/storage/secure_storage.dart';
 import '../../core/network/api_client.dart';
+import '../devices/device_service.dart';
 import 'appwrite_auth_service.dart';
 
 enum AuthState { unauthenticated, authenticating, authenticated, authError, loggingOut }
@@ -67,6 +68,11 @@ class AuthProvider extends ChangeNotifier {
       // 4. Save local token
       final accessToken = response.data['accessToken'];
       await _storage.saveToken(accessToken);
+      
+      // 5. Register Device
+      final deviceService = DeviceService(_apiClient);
+      final deviceId = 'device-\${DateTime.now().millisecondsSinceEpoch}'; // Placeholder device ID
+      await deviceService.registerDevice(deviceId);
       
       _setState(AuthState.authenticated);
     } catch (e) {
