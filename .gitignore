@@ -1,0 +1,28 @@
+# Node
+node_modules/
+dist/
+build/
+coverage/
+.env
+.env.*
+!.env.example
+
+# Flutter
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Mac
+.DS_Store
+
+# IDEs
+.idea/
+.vscode/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log

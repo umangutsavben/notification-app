@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  phone     String   @unique
+  name      String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  devices       Device[]
+  notifications UserNotification[]
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("ADMIN")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdNotifications Notification[]
+}
+
+model Device {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fcmToken   String?  @unique
+  apnsToken  String?  @unique
+  platform   Platform
+  deviceModel String?
+  osVersion  String?
+  appVersion String?
+  isActive   Boolean  @default(true)
+  lastActive DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+enum Platform {
+  ANDROID
+  IOS
+  WEB
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  title       String
+  body        String
+  data        Json?    // Additional payload
+  imageUrl    String?
+  targetType  TargetType // ALL, SPECIFIC_USERS, TOPIC
+  status      NotificationStatus @default(PENDING)
+  scheduledFor DateTime?
+  createdBy   String
+  admin       Admin    @relation(fields: [createdBy], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userNotifications UserNotification[]
+  deliveries        NotificationDelivery[]
+}
+
+enum TargetType {
+  ALL
+  SPECIFIC_USERS
+  TOPIC
+}
+
+enum NotificationStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model UserNotification {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notificationId String
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  isRead         Boolean  @default(false)
+  readAt         DateTime?
+  createdAt      DateTime @default(now())
+
+  @@unique([userId, notificationId])
+}
+
+model NotificationDelivery {
+  id             String   @id @default(uuid())
+  notificationId String
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  provider       String   // FCM, APNS
+  providerId     String?  // Message ID from provider
+  status         DeliveryStatus
+  error          String?
+  attemptCount   Int      @default(1)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+enum DeliveryStatus {
+  SENT
+  FAILED
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  adminId   String?
+  action    String
+  resource  String
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
