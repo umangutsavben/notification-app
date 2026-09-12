@@ -12,8 +12,10 @@ router.get('/health', (req: Request, res: Response) => {
   });
 });
 
+import authRoutes from '../modules/auth/auth.routes';
+
 // TODO: Mount other route modules here
-// router.use('/auth', authRoutes);
+router.use('/auth', authRoutes);
 // router.use('/users', userRoutes);
 // router.use('/notifications', notificationRoutes);
 // router.use('/admin', adminRoutes);
